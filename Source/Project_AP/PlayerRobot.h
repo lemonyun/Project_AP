@@ -17,9 +17,18 @@ class PROJECT_AP_API APlayerRobot : public ABasePawn
 public:
 	APlayerRobot();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class URobotMovementComponent* MovementComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	void MoveForward(float Value);
+	void MoveRight(float Value);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -30,5 +39,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UStaticMeshComponent* Mesh;
+
 
 };

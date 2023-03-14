@@ -6,7 +6,7 @@
 
 UProject_APGameInstance::UProject_APGameInstance()
 {
-    static ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/MenuSystem/Widgets/W_InGameWidget"));
+    static ConstructorHelpers::FClassFinder<UInGameWidget> MenuBPClass(TEXT("/Game/MenuSystem/Widgets/W_InGameWidget"));
 
     if (MenuBPClass.Class == nullptr)
         return;

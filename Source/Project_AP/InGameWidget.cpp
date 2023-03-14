@@ -5,5 +5,6 @@
 
 bool UInGameWidget::Initialize()
 {
-	return false;
+	Super::Initialize();
+	return true;
 }

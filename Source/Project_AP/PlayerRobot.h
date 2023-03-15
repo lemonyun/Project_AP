@@ -20,6 +20,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class URobotMovementComponent* MovementComponent;
 
+	UStaticMeshComponent* GetMeshComponent();
+	UStaticMeshComponent* GetWeaponMeshComponent();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -29,6 +32,7 @@ protected:
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	// void Move(FVector Value);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -38,7 +42,12 @@ private:
 	class UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UStaticMeshComponent* Mesh;
+	class UStaticMeshComponent* BaseMesh;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UStaticMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UCapsuleComponent* Capsule;
 
 };

@@ -2,6 +2,12 @@
 
 
 #include "RobotMovementComponent.h"
+#include "Math/UnrealMathUtility.h"
+#include "PlayerRobot.h"
+#include "Kismet/GameplayStatics.h"
+#include "Project_APGameInstance.h"
+#include "InGameWidget.h"
+#include "InGameButton.h"
 
 // Sets default values for this component's properties
 URobotMovementComponent::URobotMovementComponent()
@@ -11,6 +17,7 @@ URobotMovementComponent::URobotMovementComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+
 }
 
 
@@ -21,6 +28,10 @@ void URobotMovementComponent::BeginPlay()
 
 	// ...
 	
+	InGameWidget = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget();
+
+	Mesh = Cast<APlayerRobot>(GetOwner())->GetMeshComponent();
+	WeaponMesh = Cast<APlayerRobot>(GetOwner())->GetWeaponMeshComponent();
 }
 
 
@@ -30,9 +41,37 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	Velocity = FVector(MoveForward, MoveRight, 0) * MoveSpeed;
+	FVector2D PlayerMoveInput = InGameWidget->GetMoveButton()->GetPlayerInput();
+	MoveForward = -PlayerMoveInput.Y;
+	MoveRight = PlayerMoveInput.X;
+
+	FVector NewMoveVector = FVector(MoveForward, MoveRight, 0);
+
+	Velocity = NewMoveVector * MoveSpeed;
 	
 	UpdateLocationFromVelocity(DeltaTime);
+
+	if (Velocity != FVector::ZeroVector) 
+	{
+		UpdateRotation(DeltaTime);
+	}
+	
+	// Weapon Mesh Rotation 업데이트
+
+	FVector2D PlayerAttackInput = InGameWidget->GetAttackButton()->GetPlayerInput();
+
+
+	AttackForward = -PlayerAttackInput.Y;
+	AttackRight = PlayerAttackInput.X;
+
+	WeaponRotationVector = FVector(AttackForward, AttackRight, 0);
+
+	if (WeaponRotationVector != FVector::ZeroVector)
+	{
+		UpdateWeaponRotation(DeltaTime);
+	}
+
+
 }
 
 void URobotMovementComponent::SetMoveForward(float Value)
@@ -64,4 +103,26 @@ void URobotMovementComponent::UpdateLocationFromVelocity(float DeltaTime)
 	{
 		Velocity = FVector::ZeroVector;
 	}
+}
+
+void URobotMovementComponent::UpdateRotation(float DeltaTime)
+{
+	// float DeltaLocation = FVector::DotProduct(GetOwner()->GetActorForwardVector(), Velocity) * DeltaTime;
+
+	FRotator CurrentRotator = Mesh->GetComponentRotation();
+	
+	FRotator TargetRotator = Velocity.Rotation();
+
+	FRotator SmoothRotator = FMath::RInterpTo(CurrentRotator, TargetRotator, DeltaTime, 3.0f);
+	// FRotator SmoothRotator = TargetRotator;
+
+	Mesh->SetRelativeRotation(SmoothRotator);
+	
+}
+
+void URobotMovementComponent::UpdateWeaponRotation(float DeltaTime)
+{
+
+	WeaponMesh->SetWorldRotation(WeaponRotationVector.Rotation());
+	
 }

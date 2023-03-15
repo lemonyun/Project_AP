@@ -6,23 +6,41 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "RobotMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+
 
 APlayerRobot::APlayerRobot()
 {
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
 	MovementComponent = CreateDefaultSubobject<URobotMovementComponent>(TEXT("MovementComponent"));
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
 
-	RootComponent = Mesh;
-	SpringArm->SetupAttachment(RootComponent);
+	RootComponent = Capsule;
+	SpringArm->SetupAttachment(Capsule);
 	Camera->SetupAttachment(SpringArm);
+	BaseMesh->SetupAttachment(Capsule);
+	WeaponMesh->SetupAttachment(BaseMesh);
 
+}
+
+UStaticMeshComponent* APlayerRobot::GetMeshComponent()
+{
+	return BaseMesh;
+}
+
+UStaticMeshComponent* APlayerRobot::GetWeaponMeshComponent()
+{
+	return WeaponMesh;
 }
 
 void APlayerRobot::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 }
 
 void APlayerRobot::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -30,6 +48,8 @@ void APlayerRobot::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerRobot::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerRobot::MoveRight);
+
+	// PlayerInputComponent->BindVectorAxis("Move", this, &APlayerRobot:Move);
 }
 
 void APlayerRobot::MoveForward(float Value)
@@ -44,6 +64,13 @@ void APlayerRobot::MoveRight(float Value)
 
 	MovementComponent->SetMoveRight(Value);
 }
+
+//void APlayerRobot::Move(FVector Value)
+//{
+//	MovementComponent->SetMoveForward(Value.X);
+//	MovementComponent->SetMoveRight(Value.Y);
+//}
+
 
 
 

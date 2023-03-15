@@ -22,6 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadInGameWidget();
 
+	UInGameWidget* GetInGameWidget() { return InGameWidget; }
 
 private:
 	

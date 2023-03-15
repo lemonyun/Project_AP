@@ -28,11 +28,15 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 	
 private:
+	class UStaticMeshComponent* Mesh;
+	class UStaticMeshComponent* WeaponMesh;
+
 	void UpdateLocationFromVelocity(float DeltaTime);
 	
+	void UpdateRotation(float DeltaTime);
+
 	float MoveForward;
 	float MoveRight;
 
@@ -40,8 +44,12 @@ private:
 	float AttackRight;
 
 	FVector Velocity;
+	FVector WeaponRotationVector;
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 5.f;
 
+	class UInGameWidget* InGameWidget;
+
+	void UpdateWeaponRotation(float DeltaTime);
 };

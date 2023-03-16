@@ -44,7 +44,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")

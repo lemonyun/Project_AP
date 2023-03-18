@@ -44,6 +44,8 @@ FReply UInGameButton::NativeOnTouchStarted(const FGeometry& InGeometry, const FP
 
     NextCenter = LocalWidgetMousePos;
 
+    bIsPushed = true;
+
     // UE_LOG(LogTemp, Warning, TEXT("LocalWidgetMousePos %f %f"), LocalWidgetMousePos.X, LocalWidgetMousePos.Y);
 
 
@@ -52,6 +54,9 @@ FReply UInGameButton::NativeOnTouchStarted(const FGeometry& InGeometry, const FP
 
 FReply UInGameButton::NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InTouchEvent)
 {
+    if (bIsPushed == false)
+        return FReply::Handled();
+
     Super::OnTouchMoved(InGeometry, InTouchEvent);
 
     FVector2D LocalWidgetMousePos = USlateBlueprintLibrary::AbsoluteToLocal(InGeometry, InTouchEvent.GetScreenSpacePosition());
@@ -99,12 +104,17 @@ FReply UInGameButton::NativeOnTouchEnded(const FGeometry& InGeometry, const FPoi
 {
     Super::OnTouchEnded(InGeometry, InGestureEvent);
 
+    if (bIsPushed == false)
+        return FReply::Handled();
+
     OnTouchEndDelegate.ExecuteIfBound();
 
     PlayerInput = FVector2D::Zero();
 
     JoyStickThumb->SetRenderTranslation(JoystickOffset);
     JoyStickBackGround->SetRenderTranslation(JoystickOffset);
+
+    bIsPushed = false;
 
     return FReply::Handled();
 }

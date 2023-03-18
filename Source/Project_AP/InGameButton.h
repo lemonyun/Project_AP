@@ -59,6 +59,8 @@ private:
 	
 	float SquaredRadius = 14400;
 
+	bool bIsPushed = false;
+
 	FVector2D NextCenter;
 
 	FVector2D PlayerInput;

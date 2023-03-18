@@ -27,11 +27,15 @@ void URobotMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+	APlayerRobot* Owner = Cast<APlayerRobot>(GetOwner());
+	if (Owner != nullptr)
+	{
+		Mesh = Owner->GetMeshComponent();
+	}
 	
-	InGameWidget = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget();
 
-	Mesh = Cast<APlayerRobot>(GetOwner())->GetMeshComponent();
-	WeaponMesh = Cast<APlayerRobot>(GetOwner())->GetWeaponMeshComponent();
+	MoveButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetMoveButton();
+
 }
 
 
@@ -41,9 +45,13 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	FVector2D PlayerMoveInput = InGameWidget->GetMoveButton()->GetPlayerInput();
-	MoveForward = -PlayerMoveInput.Y;
-	MoveRight = PlayerMoveInput.X;
+	FVector2D PlayerMoveInput = MoveButton->GetPlayerInput();
+
+	// Movement는 Input의 크기에 상관 없이 같은 크기를 가진다.
+	FVector2D NormalizedInput = PlayerMoveInput.GetSafeNormal();
+
+	MoveForward = -NormalizedInput.Y;
+	MoveRight = NormalizedInput.X;
 
 	FVector NewMoveVector = FVector(MoveForward, MoveRight, 0);
 
@@ -56,22 +64,6 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		UpdateRotation(DeltaTime);
 	}
 	
-	// Weapon Mesh Rotation 업데이트
-
-	FVector2D PlayerAttackInput = InGameWidget->GetAttackButton()->GetPlayerInput();
-
-
-	AttackForward = -PlayerAttackInput.Y;
-	AttackRight = PlayerAttackInput.X;
-
-	WeaponRotationVector = FVector(AttackForward, AttackRight, 0);
-
-	if (WeaponRotationVector != FVector::ZeroVector)
-	{
-		UpdateWeaponRotation(DeltaTime);
-	}
-
-
 }
 
 void URobotMovementComponent::SetMoveForward(float Value)
@@ -82,16 +74,6 @@ void URobotMovementComponent::SetMoveForward(float Value)
 void URobotMovementComponent::SetMoveRight(float Value)
 {
 	MoveRight = Value;
-}
-
-void URobotMovementComponent::SetAttackForward(float Value)
-{
-	AttackForward = Value;
-}
-
-void URobotMovementComponent::SetAttackRight(float Value)
-{
-	AttackRight = Value;
 }
 
 void URobotMovementComponent::UpdateLocationFromVelocity(float DeltaTime)
@@ -120,9 +102,3 @@ void URobotMovementComponent::UpdateRotation(float DeltaTime)
 	
 }
 
-void URobotMovementComponent::UpdateWeaponRotation(float DeltaTime)
-{
-
-	WeaponMesh->SetWorldRotation(WeaponRotationVector.Rotation());
-	
-}

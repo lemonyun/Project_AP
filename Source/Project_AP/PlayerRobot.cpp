@@ -7,6 +7,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "RobotMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "WeaponComponent.h"
+#include "ProjectileTrajectoryComponent.h"
+#include "Components/SceneComponent.h"
 
 
 APlayerRobot::APlayerRobot()
@@ -16,13 +19,17 @@ APlayerRobot::APlayerRobot()
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
 	MovementComponent = CreateDefaultSubobject<URobotMovementComponent>(TEXT("MovementComponent"));
+	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
+	ProjectileStartPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileStartPoint"));
+	ProjectileTrajectory = CreateDefaultSubobject<UProjectileTrajectoryComponent>(TEXT("ProjectileTrajectory"));
 
 	RootComponent = Capsule;
 	SpringArm->SetupAttachment(Capsule);
 	Camera->SetupAttachment(SpringArm);
 	BaseMesh->SetupAttachment(Capsule);
 	WeaponMesh->SetupAttachment(BaseMesh);
+	ProjectileStartPoint->SetupAttachment(WeaponMesh);
 
 }
 

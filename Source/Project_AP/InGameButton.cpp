@@ -12,6 +12,8 @@
 
 bool UInGameButton::Initialize()
 {
+    SquaredRadius = FMath::Square(Radius);
+
     bool Success = Super::Initialize();
     if (!Success)
         return false;
@@ -19,6 +21,10 @@ bool UInGameButton::Initialize()
     if (TouchRange == nullptr) return false;
     if (JoyStickBackGround == nullptr) return false;
     if (JoyStickThumb == nullptr) return false;
+
+    
+    JoyStickThumb->SetRenderTranslation(JoystickOffset);
+    JoyStickBackGround->SetRenderTranslation(JoystickOffset);
 
     return true;
 
@@ -38,7 +44,7 @@ FReply UInGameButton::NativeOnTouchStarted(const FGeometry& InGeometry, const FP
 
     NextCenter = LocalWidgetMousePos;
 
-    UE_LOG(LogTemp, Warning, TEXT("LocalWidgetMousePos %f %f"), LocalWidgetMousePos.X, LocalWidgetMousePos.Y);
+    // UE_LOG(LogTemp, Warning, TEXT("LocalWidgetMousePos %f %f"), LocalWidgetMousePos.X, LocalWidgetMousePos.Y);
 
 
     return FReply::Handled();
@@ -53,18 +59,17 @@ FReply UInGameButton::NativeOnTouchMoved(const FGeometry& InGeometry, const FPoi
 
     FVector2D Offset = LocalWidgetMousePos - NextCenter;
 
-    PlayerInput = Offset.GetSafeNormal();
+    PlayerInput = Offset.GetSafeNormal() * FMath::Clamp(Offset.Size() / Radius, 0, 1);
 
-   
-
-    UE_LOG(LogTemp, Warning, TEXT("InputVector %f %f"), PlayerInput.X, PlayerInput.Y);
-
+    //UE_LOG(LogTemp, Warning, TEXT("OffsetSize %f"), Offset.Size());
+    //UE_LOG(LogTemp, Warning, TEXT("Player Input %f %f"), PlayerInput.X, PlayerInput.Y);
     
     // Touch Point가 BackGround를 벗어나는 경우
 
-    UE_LOG(LogTemp, Warning, TEXT("size Square %f"), Offset.SizeSquared());
+    // UE_LOG(LogTemp, Warning, TEXT("size Square %f"), Offset.SizeSquared());
     if (Offset.SizeSquared() > SquaredRadius)
     {
+        // BackGround UI가 같이 움직이도록 하는 버튼의 경우
         if (bIsBackgroundMove)
         {
             NextCenter = NextCenter + Offset - Offset.GetSafeNormal() * FMath::Sqrt(SquaredRadius);
@@ -81,7 +86,6 @@ FReply UInGameButton::NativeOnTouchMoved(const FGeometry& InGeometry, const FPoi
     }
     else
     {
-
         JoyStickThumb->SetRenderTranslation(LocalWidgetMousePos - LocalCenter);
     }
     // Thumb 이동
@@ -95,11 +99,12 @@ FReply UInGameButton::NativeOnTouchEnded(const FGeometry& InGeometry, const FPoi
 {
     Super::OnTouchEnded(InGeometry, InGestureEvent);
 
-
-    JoyStickThumb->SetRenderTranslation(FVector2D::Zero());
-    JoyStickBackGround->SetRenderTranslation(FVector2D::Zero());
+    OnTouchEndDelegate.ExecuteIfBound();
 
     PlayerInput = FVector2D::Zero();
+
+    JoyStickThumb->SetRenderTranslation(JoystickOffset);
+    JoyStickBackGround->SetRenderTranslation(JoystickOffset);
 
     return FReply::Handled();
 }

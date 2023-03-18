@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "InGameButton.generated.h"
 
+DECLARE_DELEGATE (OnTouchEnd);
+
 UCLASS()
 class PROJECT_AP_API UInGameButton : public UUserWidget
 {
@@ -14,6 +16,8 @@ class PROJECT_AP_API UInGameButton : public UUserWidget
 
 public:
 	FVector2D GetPlayerInput() { return PlayerInput; }
+
+	OnTouchEnd OnTouchEndDelegate;
 
 protected:
 	virtual bool Initialize() override;
@@ -29,6 +33,9 @@ private:
 	class UImage* JoyStickThumb;
 
 	UPROPERTY(EditAnywhere)
+	FVector2D JoystickOffset;
+
+	UPROPERTY(EditAnywhere)
 	FVector2D Center;
 
 	UPROPERTY(EditAnywhere)
@@ -41,7 +48,7 @@ private:
 	FVector2D InteractionSize;
 
 	UPROPERTY(EditAnywhere)
-	float SquaredRadius = 14400;
+	float Radius = 120;
 
 	UPROPERTY(EditAnywhere)
 	bool bIsBackgroundMove = false;
@@ -50,6 +57,7 @@ private:
 	FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	
+	float SquaredRadius = 14400;
 
 	FVector2D NextCenter;
 

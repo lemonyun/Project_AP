@@ -22,34 +22,27 @@ public:
 	void SetMoveForward(float Value);
 	void SetMoveRight(float Value);
 
-	void SetAttackForward(float Value);
-	void SetAttackRight(float Value);
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
 private:
-	class UStaticMeshComponent* Mesh;
-	class UStaticMeshComponent* WeaponMesh;
-
 	void UpdateLocationFromVelocity(float DeltaTime);
-	
 	void UpdateRotation(float DeltaTime);
-
+		
+private:
+	class UStaticMeshComponent* Mesh;
+	
 	float MoveForward;
 	float MoveRight;
 
-	float AttackForward;
-	float AttackRight;
-
 	FVector Velocity;
-	FVector WeaponRotationVector;
+
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 5.f;
 
-	class UInGameWidget* InGameWidget;
+	class UInGameButton* MoveButton;
 
-	void UpdateWeaponRotation(float DeltaTime);
+
 };

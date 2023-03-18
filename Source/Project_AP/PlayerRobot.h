@@ -20,6 +20,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class URobotMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UWeaponComponent* WeaponComponent;
+
+	class UProjectileTrajectoryComponent* GetProjectileProjectileComponent() { return ProjectileTrajectory; }
+	USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
 	UStaticMeshComponent* GetMeshComponent();
 	UStaticMeshComponent* GetWeaponMeshComponent();
 
@@ -44,10 +49,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(EditAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCapsuleComponent* Capsule;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UProjectileTrajectoryComponent* ProjectileTrajectory;
+
+	UPROPERTY(EditAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* ProjectileStartPoint;
 };

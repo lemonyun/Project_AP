@@ -66,7 +66,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 
 	if(WeaponMesh == nullptr) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Trag %f"), ProjectileSpeed);
+	// UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Trag %f"), ProjectileSpeed);
 
 	Params.LaunchVelocity = InputPower * ProjectileSpeed * (WeaponMesh->GetForwardVector() + FVector(0, 0, Angle / 90.f));
 
@@ -89,7 +89,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 	Decal->SetVisibility(true);
 	Decal->SetWorldLocation(Results.LastTraceDestination.Location);
 
-	UE_LOG(LogTemp, Warning, TEXT("FF %f"), Results.HitResult.Distance);
+	// UE_LOG(LogTemp, Warning, TEXT("FF %f"), Results.HitResult.Distance);
 
 	for (int i = 0; i < Results.PathData.Num(); i++)
 	{
@@ -113,7 +113,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 		SplineMesh->RegisterComponent();
 		GetOwner()->AddInstanceComponent(SplineMesh);
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *SplineMesh->GetName());
+		// UE_LOG(LogTemp, Warning, TEXT("%s"), *SplineMesh->GetName());
 		
 		if (SplineMesh == nullptr)
 		{	

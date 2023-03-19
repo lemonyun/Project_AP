@@ -9,6 +9,7 @@
 #include "PlayerRobot.h"
 #include "ProjectileTrajectoryComponent.h"
 #include "Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
 
 // Sets default values for this component's properties
@@ -32,10 +33,12 @@ void UWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	AttackButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetAttackButton();
+	UltimateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetUltimateButton();
 
 	WeaponMesh = Cast<APlayerRobot>(GetOwner())->GetWeaponMeshComponent();
-
-	AttackButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnTouchEnd);
+																						  
+	AttackButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnAttackTouchEnd);
+	UltimateButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnUltimateTouchEnd);
 	
 	ProjectileTrajectory = Cast<APlayerRobot>(GetOwner())->GetProjectileProjectileComponent();
 }
@@ -49,41 +52,40 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	// Weapon Mesh Rotation 업데이트
 	FVector2D PlayerAttackInput = AttackButton->GetPlayerInput();
-
-	AttackForward = -PlayerAttackInput.Y;
-	AttackRight = PlayerAttackInput.X;
-
-	WeaponRotationVector = FVector(AttackForward, AttackRight, 0);
-
-	
-
-	if (WeaponRotationVector != FVector::ZeroVector)
-	{
-		UpdateWeaponRotation(DeltaTime);	
-	}
+	FVector2D PlayerUltimateInput = UltimateButton->GetPlayerInput();
 
 	ProjectileTrajectory->ClearTrajectory();
 
-	if (WeaponRotationVector.Size() > MinInputRate)
+	if (PlayerAttackInput.Size() > KINDA_SMALL_NUMBER)
 	{
 		
-		float InputPower = WeaponRotationVector.Size();
-		ProjectileTrajectory->DrawTrajectory(InputPower, ProjectileSpeed, ProjectileDegree);
-		
+		WeaponRotationVector = FVector(-PlayerAttackInput.Y, PlayerAttackInput.X, 0);
+		UpdateWeaponRotation(DeltaTime);
+
+		if (WeaponRotationVector.Size() > MinInputRate)
+		{
+
+			float InputPower = WeaponRotationVector.Size();
+			ProjectileTrajectory->DrawTrajectory(InputPower, ProjectileSpeed, LaunchDegree, 2.f, true);
+
+		}
+	} 
+	else if (PlayerUltimateInput.Size() > KINDA_SMALL_NUMBER)
+	{
+		WeaponRotationVector = FVector(-PlayerUltimateInput.Y, PlayerUltimateInput.X, 0);
+		UpdateWeaponRotation(DeltaTime);
+
+		if (WeaponRotationVector.Size() > MinInputRate)
+		{
+			ProjectileTrajectory->DrawTrajectory(1, ProjectileSpeed, 0, 1.f, false);
+
+		}
 	}
+	
+	
+
 
 }
-
-void UWeaponComponent::SetAttackForward(float Value)
-{
-	AttackForward = Value;
-}
-
-void UWeaponComponent::SetAttackRight(float Value)
-{
-	AttackRight = Value;
-}
-
 
 void UWeaponComponent::UpdateWeaponRotation(float DeltaTime)
 {
@@ -92,7 +94,7 @@ void UWeaponComponent::UpdateWeaponRotation(float DeltaTime)
 
 }
 
-void UWeaponComponent::OnTouchEnd()
+void UWeaponComponent::OnAttackTouchEnd()
 {
 
 	FVector2D InputVector = AttackButton->GetPlayerInput();
@@ -101,40 +103,48 @@ void UWeaponComponent::OnTouchEnd()
 	if (InputVector.Size() > MinInputRate)
 	{
 		// Launch
-		UE_LOG(LogTemp, Warning, TEXT("size %f"), InputVector.Size());
-		UE_LOG(LogTemp, Warning, TEXT("Launch"));
-
-		Launch();
-
-		
+		LaunchCurve();
 	}
 	else
 	{
 		// 아무일도 일어나지 않았다..
-		UE_LOG(LogTemp, Warning, TEXT("size %f"), InputVector.Size());
-		UE_LOG(LogTemp, Warning, TEXT("Cancel"));
+
 
 	}
 	
 }
 
-void UWeaponComponent::Launch()
+void UWeaponComponent::OnUltimateTouchEnd()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ProjectileClass %s"), *ProjectileClass->GetName());
-	// Try and fire a projectile
+	FVector2D InputVector = UltimateButton->GetPlayerInput();
+
+	// Touch를 뗀 지점이 MinInputRate 바깥쪽인 경우 발사
+	if (InputVector.Size() > MinInputRate)
+	{
+		// Launch
+		LaunchStraight();
+	}
+	else
+	{
+		// 아무일도 일어나지 않았다..
+
+
+	}
+}
+
+void UWeaponComponent::LaunchCurve()
+{
 	if (ProjectileClass != nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
 			
-			FVector ProjectileVector = WeaponMesh->GetForwardVector() + FVector(0, 0, ProjectileDegree / 90.f);
+			FVector ProjectileVector = WeaponMesh->GetForwardVector() + FVector(0, 0, LaunchDegree / 90.f);
 
 			const FRotator SpawnRotation = ProjectileVector.Rotation();
 
 			const FVector SpawnLocation = Cast<APlayerRobot>(GetOwner())->GetProjectileStartPoint()->GetComponentLocation();
-
-			//Set Spawn Collision Handling Override
 
 			FTransform ProjectileTransform = FTransform(SpawnRotation.Quaternion(), SpawnLocation);
 
@@ -145,9 +155,8 @@ void UWeaponComponent::Launch()
 			if (Projectile != nullptr)
 			{
 				float InputPower = WeaponRotationVector.Size();
-				UE_LOG(LogTemp, Warning, TEXT("Input Power %f"), InputPower);
-				UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Launch %f"), ProjectileSpeed);
 
+				Projectile->SetLifeSpan(2.0f);
 				Projectile->SetInitialSpeed(ProjectileSpeed * InputPower);
 
 				Projectile->FinishSpawning(ProjectileTransform);
@@ -157,4 +166,45 @@ void UWeaponComponent::Launch()
 		}
 	}
 
+}
+
+void UWeaponComponent::LaunchStraight()
+{
+	if (ProjectileClass != nullptr)
+	{
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+
+			FVector ProjectileVector = WeaponMesh->GetForwardVector();
+
+			const FRotator SpawnRotation = ProjectileVector.Rotation();
+
+			const FVector SpawnLocation = Cast<APlayerRobot>(GetOwner())->GetProjectileStartPoint()->GetComponentLocation();
+
+			FTransform ProjectileTransform = FTransform(SpawnRotation.Quaternion(), SpawnLocation);
+
+			Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), Cast<APawn>(GetOwner()), ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding);
+
+			FActorSpawnParameters a;
+			// World->SpawnActor<AProjectile>()
+			// 0 < InputPower < 1
+
+			if (Projectile != nullptr)
+			{
+				float InputPower = WeaponRotationVector.Size();
+
+				Projectile->SetLifeSpan(1.0f);
+				Projectile->SetInitialSpeed(ProjectileSpeed);
+
+				Projectile->GetProjectileMovement()->ProjectileGravityScale = 0;
+
+				Projectile->FinishSpawning(ProjectileTransform);
+
+				
+
+			}
+
+		}
+	}
 }

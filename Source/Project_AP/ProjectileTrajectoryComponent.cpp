@@ -60,7 +60,7 @@ void UProjectileTrajectoryComponent::TickComponent(float DeltaTime, ELevelTick T
 	// ...
 }
 
-void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float ProjectileSpeed, float Angle)
+void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float ProjectileSpeed, float Angle, float Time, float bIsCurve)
 {
 	FPredictProjectilePathParams Params;
 
@@ -75,12 +75,17 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 	Params.TraceChannel = ECC_WorldStatic;
 	Params.bTraceWithCollision = true;
 	Params.bTraceComplex = false;
+
+	if (!bIsCurve)
+	{
+		Params.OverrideGravityZ = 0.01f;
+	}
 	
 	TArray<AActor*> ActorsToIgnore = {GetOwner()};
 	Params.ActorsToIgnore = ActorsToIgnore;
 	Params.DrawDebugType = EDrawDebugTrace::None;
 	Params.SimFrequency = 10.f;
-	Params.MaxSimTime = 2.f;
+	Params.MaxSimTime = Time;
 
 	FPredictProjectilePathResult Results;
 

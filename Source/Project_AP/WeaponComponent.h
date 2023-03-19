@@ -16,8 +16,18 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
-	void SetAttackForward(float Value);
-	void SetAttackRight(float Value);
+	void SetAttackForward(float Value) { AttackForward = Value; }
+	void SetAttackRight(float Value) { AttackRight = Value; }
+
+	float GetAttackForward() { return AttackForward; }
+	float GetAttackRight() { return AttackRight; }
+
+
+	void SetUltimateForward(float Value) { UltimateForward = Value; }
+	void SetUltimateRight(float Value) { UltimateRight = Value; }
+	float GetUltimateForward() { return UltimateForward; }
+	float GetUltimateRight() { return UltimateRight; }
+
 
 protected:
 	// Called when the game starts
@@ -28,9 +38,11 @@ protected:
 private:
 	void UpdateWeaponRotation(float DeltaTime);
 
-	void OnTouchEnd();
+	void OnAttackTouchEnd();
+	void OnUltimateTouchEnd();
 
-	void Launch();
+	void LaunchCurve();
+	void LaunchStraight();
 
 private:
 	
@@ -41,15 +53,19 @@ private:
 	float ProjectileSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere)
-	float ProjectileDegree = 45.f;
+	float LaunchDegree = 45.f;
 
 	class UStaticMeshComponent* WeaponMesh;
 
 	class UInGameWidget* InGameWidget;
 	class UInGameButton* AttackButton;
+	class UInGameButton* UltimateButton;
 
 	float AttackForward;
 	float AttackRight;
+
+	float UltimateForward;
+	float UltimateRight;
 
 	FVector WeaponRotationVector;
 

@@ -27,7 +27,6 @@ bool UInGameButton::Initialize()
     JoyStickBackGround->SetRenderTranslation(JoystickOffset);
 
     Cast<UCanvasPanelSlot>(TouchRange->Slot)->SetSize(InteractionSize);
-    //Cast<UCanvasPanelSlot>(TouchRange->Slot)->SetPosition(Center);
     
 
     return true;

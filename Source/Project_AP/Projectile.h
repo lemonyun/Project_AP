@@ -17,6 +17,8 @@ public:
 
 	void SetInitialSpeed(float Speed);
 
+	class UProjectileMovementComponent* GetProjectileMovement() { return ProjectileMovement; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

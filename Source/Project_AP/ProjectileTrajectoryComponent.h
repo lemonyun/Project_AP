@@ -24,7 +24,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void DrawTrajectory(float Power, float ProjectileSpeed, float Angle);
+	void DrawTrajectory(float Power, float ProjectileSpeed, float Angle, float Time, float bIsCurve);
 
 	void ClearTrajectory();
 
@@ -37,9 +37,7 @@ private:
 
 	class USceneComponent* ProjectileStartPoint;
 
-	class UStaticMeshComponent* WeaponMesh;
-
-	// TArray<class USplineMeshComponent*> SplineMeshes;
+	class UWeaponComponent* Weapon;
 
 	bool isAiming = false;
 

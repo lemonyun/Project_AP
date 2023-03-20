@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Async/AsyncWork.h"
+
 #include "WeaponComponent.generated.h"
+
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -16,8 +20,19 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
-	void SetAttackForward(float Value);
-	void SetAttackRight(float Value);
+	void SetAutoForward(float Value) { AttackForward = Value; }
+	void SetAutoRight(float Value) { AttackRight = Value; }
+
+	float GetAutoForward() { return AttackForward; }
+	float GetAutoRight() { return AttackRight; }
+
+	void SetUltimateForward(float Value) { UltimateForward = Value; }
+	void SetUltimateRight(float Value) { UltimateRight = Value; }
+
+	float GetUltimateForward() { return UltimateForward; }
+	float GetUltimateRight() { return UltimateRight; }
+
+	FVector GetPlayerInputVector() { return PlayerInputVector; }
 
 protected:
 	// Called when the game starts
@@ -28,9 +43,19 @@ protected:
 private:
 	void UpdateWeaponRotation(float DeltaTime);
 
-	void OnTouchEnd();
+	void OnAutoTouchEnd();
+	void OnUltimateTouchEnd();
 
-	void Launch();
+	void LaunchCurve();
+	void LaunchStraight();
+
+	void UltimateCheckTimer();
+
+	//friend class FAsyncLaunchTask;
+
+public:
+	UPROPERTY(EditAnywhere)
+	float LaunchOffset = 90.f;
 
 private:
 	
@@ -38,18 +63,29 @@ private:
 	float MinInputRate = 0.2f;
 
 	UPROPERTY(EditAnywhere)
-	float ProjectileSpeed = 500.f;
+	float UltimateProjectileSpeed = 1500.f;
 
 	UPROPERTY(EditAnywhere)
-	float ProjectileDegree = 45.f;
+	float AttackProjectileSpeed = 1000.f;
+
+	UPROPERTY(EditAnywhere)
+	float LaunchDegree = 60.f;
 
 	class UStaticMeshComponent* WeaponMesh;
 
 	class UInGameWidget* InGameWidget;
-	class UInGameButton* AttackButton;
+	class UInGameButton* AutoButton;
+	class UInGameButton* UltimateButton;
+
+	class USceneComponent* LocationComponent;
 
 	float AttackForward;
 	float AttackRight;
+
+	float UltimateForward;
+	float UltimateRight;
+	
+	bool bIsAttacking;
 
 	FVector WeaponRotationVector;
 
@@ -61,6 +97,31 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
+	FTimerHandle UltimateHandle;
+	float RepeatTime = 5;
 
+	FVector PlayerInputVector;
 
+	
 };
+
+//class FAsyncLaunchTask : public FNonAbandonableTask
+//{
+//
+//public:
+//
+//	FAsyncLaunchTask(int32 LaunchCount, UWeaponComponent* Weapon);
+//
+//	FORCEINLINE TStatId GetStatId() const
+//	{
+//		RETURN_QUICK_DECLARE_CYCLE_STAT (FAsyncLaunchTask, STATGROUP_ThreadPoolAsyncTasks);
+//	}
+//
+//	void DoWork();
+//
+//private:
+//	int LaunchCount;
+//
+//	TObjectPtr<UWeaponComponent> WeaponPtr;
+//
+//};

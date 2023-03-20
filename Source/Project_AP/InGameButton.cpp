@@ -9,6 +9,7 @@
 #include "Brushes/SlateImageBrush.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
+#include "Components/CanvasPanelSlot.h"
 
 bool UInGameButton::Initialize()
 {
@@ -22,21 +23,40 @@ bool UInGameButton::Initialize()
     if (JoyStickBackGround == nullptr) return false;
     if (JoyStickThumb == nullptr) return false;
 
-    
     JoyStickThumb->SetRenderTranslation(JoystickOffset);
     JoyStickBackGround->SetRenderTranslation(JoystickOffset);
 
+    Cast<UCanvasPanelSlot>(TouchRange->Slot)->SetSize(InteractionSize);
+    
+
     return true;
 
+}
+
+void UInGameButton::ChangingTouchSetting()
+{
+
+}
+
+void UInGameButton::AddButtonToInActiveList(TObjectPtr<UInGameButton> Ptr)
+{
+    ButtonToInActive.Add(Ptr);
 }
 
 FReply UInGameButton::NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InTouchEvent)
 {
     Super::OnTouchStarted(InGeometry, InTouchEvent);
 
-    FVector2D LocalWidgetMousePos = USlateBlueprintLibrary::AbsoluteToLocal(InGeometry, InTouchEvent.GetScreenSpacePosition());
     
+    for (TObjectPtr<UInGameButton> ptr : ButtonToInActive)
+    {
+        ptr->SetVisibility(ESlateVisibility::HitTestInvisible);
+    }
+
+
     LocalCenter = InGeometry.GetLocalSize() / 2;
+
+    FVector2D LocalWidgetMousePos = USlateBlueprintLibrary::AbsoluteToLocal(InGeometry, InTouchEvent.GetScreenSpacePosition());
 
     //background와 thumb 이동
     JoyStickThumb->SetRenderTranslation(LocalWidgetMousePos - LocalCenter);
@@ -44,9 +64,13 @@ FReply UInGameButton::NativeOnTouchStarted(const FGeometry& InGeometry, const FP
 
     NextCenter = LocalWidgetMousePos;
 
-    bIsPushed = true;
+    if (bIsRangeChangeButton)
+    {
+        // OnTouchStartChangeDelegate.ExecuteIfBound();
+        Cast<UCanvasPanelSlot>(TouchRange->Slot)->SetSize(ChangingSize);
+    }
 
-    // UE_LOG(LogTemp, Warning, TEXT("LocalWidgetMousePos %f %f"), LocalWidgetMousePos.X, LocalWidgetMousePos.Y);
+    bIsPushed = true;
 
 
     return FReply::Handled();
@@ -66,12 +90,8 @@ FReply UInGameButton::NativeOnTouchMoved(const FGeometry& InGeometry, const FPoi
 
     PlayerInput = Offset.GetSafeNormal() * FMath::Clamp(Offset.Size() / Radius, 0, 1);
 
-    //UE_LOG(LogTemp, Warning, TEXT("OffsetSize %f"), Offset.Size());
-    //UE_LOG(LogTemp, Warning, TEXT("Player Input %f %f"), PlayerInput.X, PlayerInput.Y);
-    
     // Touch Point가 BackGround를 벗어나는 경우
 
-    // UE_LOG(LogTemp, Warning, TEXT("size Square %f"), Offset.SizeSquared());
     if (Offset.SizeSquared() > SquaredRadius)
     {
         // BackGround UI가 같이 움직이도록 하는 버튼의 경우
@@ -84,7 +104,7 @@ FReply UInGameButton::NativeOnTouchMoved(const FGeometry& InGeometry, const FPoi
         }
         else
         {
-            
+
             JoyStickThumb->SetRenderTranslation(NextCenter - LocalCenter + Offset.GetSafeNormal() * FMath::Sqrt(SquaredRadius));
         }
         
@@ -115,6 +135,18 @@ FReply UInGameButton::NativeOnTouchEnded(const FGeometry& InGeometry, const FPoi
     JoyStickBackGround->SetRenderTranslation(JoystickOffset);
 
     bIsPushed = false;
+
+    for (TObjectPtr<UInGameButton> ptr : ButtonToInActive)
+    {
+        ptr->SetVisibility(ESlateVisibility::Visible);
+    }
+
+
+    if (bIsRangeChangeButton)
+    {
+        Cast<UCanvasPanelSlot>(TouchRange->Slot)->SetSize(InteractionSize);
+    }
+
 
     return FReply::Handled();
 }

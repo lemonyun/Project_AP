@@ -24,9 +24,11 @@ public:
 	class UWeaponComponent* WeaponComponent;
 
 	class UProjectileTrajectoryComponent* GetProjectileProjectileComponent() { return ProjectileTrajectory; }
-	USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
-	UStaticMeshComponent* GetMeshComponent();
-	UStaticMeshComponent* GetWeaponMeshComponent();
+	class UWeaponComponent* GetWeaponComponent() { return WeaponComponent; }
+	class UStaticMeshComponent* GetMeshComponent() { return BaseMesh; }
+	class UStaticMeshComponent* GetWeaponMeshComponent() { return WeaponMesh; }
+	class USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
+
 
 protected:
 	// Called when the game starts or when spawned

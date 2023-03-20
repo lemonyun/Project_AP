@@ -9,7 +9,10 @@
 #include "PlayerRobot.h"
 #include "ProjectileTrajectoryComponent.h"
 #include "Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
+#include "Components/SceneComponent.h"
+
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent()
@@ -31,13 +34,17 @@ void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AttackButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetAttackButton();
+	AutoButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetAutoButton();
+	UltimateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetUltimateButton();
 
 	WeaponMesh = Cast<APlayerRobot>(GetOwner())->GetWeaponMeshComponent();
-
-	AttackButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnTouchEnd);
+																						  
+	AutoButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnAutoTouchEnd);
+	UltimateButton->OnTouchEndDelegate.BindUObject(this, &UWeaponComponent::OnUltimateTouchEnd);
 	
 	ProjectileTrajectory = Cast<APlayerRobot>(GetOwner())->GetProjectileProjectileComponent();
+
+	LocationComponent = Cast<APlayerRobot>(GetOwner())->GetProjectileStartPoint();
 }
 
 
@@ -48,42 +55,43 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 
 	// Weapon Mesh Rotation 업데이트
-	FVector2D PlayerAttackInput = AttackButton->GetPlayerInput();
 
-	AttackForward = -PlayerAttackInput.Y;
-	AttackRight = PlayerAttackInput.X;
+	FVector2D PlayerAutoInput = AutoButton->GetPlayerInput();
+	FVector2D PlayerUltimateInput = UltimateButton->GetPlayerInput();
 
-	WeaponRotationVector = FVector(AttackForward, AttackRight, 0);
-
-	
-
-	if (WeaponRotationVector != FVector::ZeroVector)
+	if (PlayerAutoInput.Size() > PlayerUltimateInput.Size())
 	{
-		UpdateWeaponRotation(DeltaTime);	
+		PlayerInputVector = FVector(-PlayerAutoInput.Y, PlayerAutoInput.X , 0);
+	}
+	else
+	{
+		PlayerInputVector = FVector(-PlayerUltimateInput.Y, PlayerUltimateInput.X, 0);
 	}
 
 	ProjectileTrajectory->ClearTrajectory();
 
-	if (WeaponRotationVector.Size() > MinInputRate)
+	if (PlayerInputVector.Size() > KINDA_SMALL_NUMBER && !bIsAttacking)
 	{
-		
-		float InputPower = WeaponRotationVector.Size();
-		ProjectileTrajectory->DrawTrajectory(InputPower, ProjectileSpeed, ProjectileDegree);
-		
+		WeaponRotationVector = PlayerInputVector;
+		UpdateWeaponRotation(DeltaTime);
 	}
 
-}
+	// 궤적 업데이트
 
-void UWeaponComponent::SetAttackForward(float Value)
-{
-	AttackForward = Value;
-}
+	
+	if (PlayerAutoInput.Size() > KINDA_SMALL_NUMBER && PlayerAutoInput.Size() > MinInputRate)
+	{
+		float InputPower = WeaponRotationVector.Size();
+		ProjectileTrajectory->DrawTrajectory(InputPower, AttackProjectileSpeed, LaunchDegree, 2.f, true);
 
-void UWeaponComponent::SetAttackRight(float Value)
-{
-	AttackRight = Value;
-}
+	} 
+	else if (PlayerUltimateInput.Size() > KINDA_SMALL_NUMBER && PlayerUltimateInput.Size() > MinInputRate)
+	{
+		ProjectileTrajectory->DrawTrajectory(1, UltimateProjectileSpeed, 0, 1.f, false);
+	}
 
+
+}
 
 void UWeaponComponent::UpdateWeaponRotation(float DeltaTime)
 {
@@ -92,49 +100,80 @@ void UWeaponComponent::UpdateWeaponRotation(float DeltaTime)
 
 }
 
-void UWeaponComponent::OnTouchEnd()
+void UWeaponComponent::OnAutoTouchEnd()
 {
 
-	FVector2D InputVector = AttackButton->GetPlayerInput();
+	FVector2D InputVector = AutoButton->GetPlayerInput();
 
 	// Touch를 뗀 지점이 MinInputRate 바깥쪽인 경우 발사
 	if (InputVector.Size() > MinInputRate)
 	{
 		// Launch
-		UE_LOG(LogTemp, Warning, TEXT("size %f"), InputVector.Size());
-		UE_LOG(LogTemp, Warning, TEXT("Launch"));
-
-		Launch();
-
-		
+		LaunchCurve();
 	}
 	else
 	{
 		// 아무일도 일어나지 않았다..
-		UE_LOG(LogTemp, Warning, TEXT("size %f"), InputVector.Size());
-		UE_LOG(LogTemp, Warning, TEXT("Cancel"));
+
 
 	}
 	
 }
 
-void UWeaponComponent::Launch()
+void UWeaponComponent::OnUltimateTouchEnd()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ProjectileClass %s"), *ProjectileClass->GetName());
-	// Try and fire a projectile
+	FVector2D InputVector = UltimateButton->GetPlayerInput();
+
+	// Touch를 뗀 지점이 MinInputRate 바깥쪽인 경우 발사
+	if (InputVector.Size() > MinInputRate)
+	{
+		// Launch
+		/*AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [&]()
+		{
+			auto Task = new FAsyncTask<FAsyncLaunchTask>(10, this);
+			Task->StartBackgroundTask();
+			Task->EnsureCompletion();
+			delete Task;
+
+			UE_LOG(LogTemp, Log, TEXT("Stop Task"));
+
+
+		});*/
+
+
+	
+		if (!GetOwner()->GetWorldTimerManager().IsTimerActive(UltimateHandle))
+		{
+			RepeatTime = 5.f;
+			bIsAttacking = true;
+			GetOwner()->GetWorldTimerManager().SetTimer(UltimateHandle, this, &UWeaponComponent::UltimateCheckTimer, 0.1f, true);
+		}
+
+
+
+	}
+	else
+	{
+		// 아무일도 일어나지 않았다..
+
+
+	}
+}
+
+void UWeaponComponent::LaunchCurve()
+{
 	if (ProjectileClass != nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
 			
-			FVector ProjectileVector = WeaponMesh->GetForwardVector() + FVector(0, 0, ProjectileDegree / 90.f);
+			//FVector ProjectileVector = WeaponMesh->GetForwardVector() + FVector(0, 0, LaunchDegree / 90.f);
+			FVector ProjectileVector = PlayerInputVector + FVector(0, 0, LaunchDegree / 90.f);
 
 			const FRotator SpawnRotation = ProjectileVector.Rotation();
 
-			const FVector SpawnLocation = Cast<APlayerRobot>(GetOwner())->GetProjectileStartPoint()->GetComponentLocation();
-
-			//Set Spawn Collision Handling Override
+			const FVector SpawnLocation = LocationComponent->GetComponentLocation() + PlayerInputVector.GetSafeNormal() * LaunchOffset;
 
 			FTransform ProjectileTransform = FTransform(SpawnRotation.Quaternion(), SpawnLocation);
 
@@ -145,10 +184,9 @@ void UWeaponComponent::Launch()
 			if (Projectile != nullptr)
 			{
 				float InputPower = WeaponRotationVector.Size();
-				UE_LOG(LogTemp, Warning, TEXT("Input Power %f"), InputPower);
-				UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Launch %f"), ProjectileSpeed);
 
-				Projectile->SetInitialSpeed(ProjectileSpeed * InputPower);
+				Projectile->SetLifeSpan(2.0f);
+				Projectile->SetInitialSpeed(AttackProjectileSpeed * InputPower);
 
 				Projectile->FinishSpawning(ProjectileTransform);
 
@@ -158,3 +196,75 @@ void UWeaponComponent::Launch()
 	}
 
 }
+
+void UWeaponComponent::LaunchStraight()
+{
+	if (ProjectileClass != nullptr)
+	{
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+
+			FVector ProjectileVector = WeaponMesh->GetForwardVector();
+
+			const FRotator SpawnRotation = ProjectileVector.Rotation();
+
+			const FVector SpawnLocation = LocationComponent->GetComponentLocation() + ProjectileVector * LaunchOffset;
+
+			FTransform ProjectileTransform = FTransform(SpawnRotation.Quaternion(), SpawnLocation);
+
+			Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), Cast<APawn>(GetOwner()), ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding);
+
+			FActorSpawnParameters a;
+			// World->SpawnActor<AProjectile>()
+			// 0 < InputPower < 1
+
+			if (Projectile != nullptr)
+			{
+				float InputPower = WeaponRotationVector.Size();
+
+				Projectile->SetLifeSpan(1.0f);
+				Projectile->SetInitialSpeed(UltimateProjectileSpeed);
+
+				Projectile->GetProjectileMovement()->ProjectileGravityScale = 0;
+
+				Projectile->FinishSpawning(ProjectileTransform);
+
+				
+
+			}
+
+		}
+	}
+}
+
+void UWeaponComponent::UltimateCheckTimer()
+{
+	// GetOwner()->GetWorldTimerManager().IsTimerActive(UltimateHandle)
+	if (--RepeatTime <= 0)
+	{
+		bIsAttacking = false;
+		GetOwner()->GetWorldTimerManager().ClearTimer(UltimateHandle);
+	}
+
+	LaunchStraight();
+
+}
+
+
+//void FAsyncLaunchTask::DoWork()
+//{
+//	while (LaunchCount > 0)
+//	{
+//		WeaponPtr->LaunchStraight();
+//		FPlatformProcess::Sleep(0.1f);
+//		
+//	}
+//}
+//
+//FAsyncLaunchTask::FAsyncLaunchTask(int32 LaunchCount, UWeaponComponent* Weapon)
+//{
+//	WeaponPtr = Weapon;
+//	this->LaunchCount = LaunchCount;
+//
+//}

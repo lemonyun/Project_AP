@@ -16,21 +16,23 @@ class PROJECT_AP_API UInGameWidget : public UUserWidget
 
 public:
 	class UInGameButton* GetMoveButton() { return MoveButton; }
-	class UInGameButton* GetAttackButton() { return AttackButton; }
+	class UInGameButton* GetAutoButton() { return AutoButton; }
+	class UInGameButton* GetUltimateButton() { return UltimateButton; }
 
 protected:
 	virtual bool Initialize() override;
 
 private:
+	void ChangeWidgetSize();
+	void RestoreWidgetSize();
+
 	UPROPERTY(meta = (BindWidget))
 	class UInGameButton* MoveButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UInGameButton* AttackButton;
+	class UInGameButton* AutoButton;
 
-	//UPROPERTY(meta = (BindWidget))
-	//class UW_InGameButton* AttackButton;	
-
-	
+	UPROPERTY(meta = (BindWidget))
+	class UInGameButton* UltimateButton;
 
 };

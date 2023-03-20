@@ -9,6 +9,7 @@
 #include "PlayerRobot.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
+#include "WeaponComponent.h"
 
 // Sets default values for this component's properties
 UProjectileTrajectoryComponent::UProjectileTrajectoryComponent()
@@ -45,7 +46,7 @@ void UProjectileTrajectoryComponent::BeginPlay()
 	{
 		ProjectileStartPoint = Owner->GetProjectileStartPoint();
 
-		WeaponMesh = Owner->GetWeaponMeshComponent();
+		Weapon = Owner->GetWeaponComponent();
 	}
 
 	
@@ -60,27 +61,34 @@ void UProjectileTrajectoryComponent::TickComponent(float DeltaTime, ELevelTick T
 	// ...
 }
 
-void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float ProjectileSpeed, float Angle)
+void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float ProjectileSpeed, float Angle, float Time, float bIsCurve)
 {
 	FPredictProjectilePathParams Params;
 
-	if(WeaponMesh == nullptr) return;
+	if(Weapon == nullptr) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Trag %f"), ProjectileSpeed);
+	// UE_LOG(LogTemp, Warning, TEXT("ProjectileSpeed in Trag %f"), ProjectileSpeed);
 
-	Params.LaunchVelocity = InputPower * ProjectileSpeed * (WeaponMesh->GetForwardVector() + FVector(0, 0, Angle / 90.f));
+	FVector PlayerInputVector = Weapon->GetPlayerInputVector();
 
-	Params.StartLocation = ProjectileStartPoint->GetComponentLocation();
+	Params.LaunchVelocity = InputPower * ProjectileSpeed * (PlayerInputVector + FVector(0, 0, Angle / 90.f));
+	Params.StartLocation = ProjectileStartPoint->GetComponentLocation() + PlayerInputVector.GetSafeNormal() * Weapon->LaunchOffset;
+	
 	Params.ProjectileRadius = 10;
 	Params.TraceChannel = ECC_WorldStatic;
 	Params.bTraceWithCollision = true;
 	Params.bTraceComplex = false;
+
+	if (!bIsCurve)
+	{
+		Params.OverrideGravityZ = 0.01f;
+	}
 	
 	TArray<AActor*> ActorsToIgnore = {GetOwner()};
 	Params.ActorsToIgnore = ActorsToIgnore;
 	Params.DrawDebugType = EDrawDebugTrace::None;
 	Params.SimFrequency = 10.f;
-	Params.MaxSimTime = 2.f;
+	Params.MaxSimTime = Time;
 
 	FPredictProjectilePathResult Results;
 
@@ -89,7 +97,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 	Decal->SetVisibility(true);
 	Decal->SetWorldLocation(Results.LastTraceDestination.Location);
 
-	UE_LOG(LogTemp, Warning, TEXT("FF %f"), Results.HitResult.Distance);
+	// UE_LOG(LogTemp, Warning, TEXT("FF %f"), Results.HitResult.Distance);
 
 	for (int i = 0; i < Results.PathData.Num(); i++)
 	{
@@ -113,7 +121,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 		SplineMesh->RegisterComponent();
 		GetOwner()->AddInstanceComponent(SplineMesh);
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *SplineMesh->GetName());
+		// UE_LOG(LogTemp, Warning, TEXT("%s"), *SplineMesh->GetName());
 		
 		if (SplineMesh == nullptr)
 		{	

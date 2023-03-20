@@ -33,15 +33,8 @@ APlayerRobot::APlayerRobot()
 
 }
 
-UStaticMeshComponent* APlayerRobot::GetMeshComponent()
-{
-	return BaseMesh;
-}
 
-UStaticMeshComponent* APlayerRobot::GetWeaponMeshComponent()
-{
-	return WeaponMesh;
-}
+
 
 void APlayerRobot::BeginPlay()
 {

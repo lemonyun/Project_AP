@@ -37,7 +37,7 @@ private:
 
 	class USceneComponent* ProjectileStartPoint;
 
-	class UStaticMeshComponent* WeaponMesh;
+	class UWeaponComponent* Weapon;
 
 	bool isAiming = false;
 

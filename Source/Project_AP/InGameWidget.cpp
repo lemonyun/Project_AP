@@ -14,12 +14,12 @@ bool UInGameWidget::Initialize()
 
     if (MoveButton == nullptr) return false;
 
-    if (AttackButton == nullptr) return false;
+    if (AutoButton == nullptr) return false;
 
     if (UltimateButton == nullptr) return false;
   
-    AttackButton->AddButtonToInActiveList(UltimateButton);
-    UltimateButton->AddButtonToInActiveList(AttackButton);
+    AutoButton->AddButtonToInActiveList(UltimateButton);
+    UltimateButton->AddButtonToInActiveList(AutoButton);
 
     return true;
     

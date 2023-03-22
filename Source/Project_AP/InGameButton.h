@@ -67,8 +67,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bIsRangeChangeButton;
 
-
-
 	FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;

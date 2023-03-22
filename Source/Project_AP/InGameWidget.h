@@ -18,6 +18,7 @@ public:
 	class UInGameButton* GetMoveButton() { return MoveButton; }
 	class UInGameButton* GetAutoButton() { return AutoButton; }
 	class UInGameButton* GetUltimateButton() { return UltimateButton; }
+	class UInGameButton* GetRotateButton() { return RotateButton; }
 
 protected:
 	virtual bool Initialize() override;
@@ -34,5 +35,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UInGameButton* UltimateButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UInGameButton* RotateButton;
 
 };

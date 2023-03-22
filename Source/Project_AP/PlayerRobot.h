@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "BasePawn.h"
+#include "AbilitySystemInterface.h"
+
 #include "PlayerRobot.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_AP_API APlayerRobot : public ABasePawn
+class PROJECT_AP_API APlayerRobot : public ABasePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -28,6 +30,7 @@ public:
 	class UStaticMeshComponent* GetMeshComponent() { return BaseMesh; }
 	class UStaticMeshComponent* GetWeaponMeshComponent() { return WeaponMesh; }
 	class USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
+	class USpringArmComponent* GetSpringArmComponent() { return SpringArm; }
 
 
 protected:
@@ -62,4 +65,17 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* ProjectileStartPoint;
+
+	UPROPERTY(EditAnywhere)
+	class UAbilitySystemComponent* AbilitySystem;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
+	{
+		return AbilitySystem;
+	}
+
+	UPROPERTY()
+	const class URobotAttributeSet* AttributeSet;
+
+
 };

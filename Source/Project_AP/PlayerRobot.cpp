@@ -11,6 +11,10 @@
 #include "ProjectileTrajectoryComponent.h"
 #include "Components/SceneComponent.h"
 
+#include "AbilitySystemComponent.h"
+#include "RobotAttributeSet.h"
+
+
 
 APlayerRobot::APlayerRobot()
 {
@@ -23,6 +27,8 @@ APlayerRobot::APlayerRobot()
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
 	ProjectileStartPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileStartPoint"));
 	ProjectileTrajectory = CreateDefaultSubobject<UProjectileTrajectoryComponent>(TEXT("ProjectileTrajectory"));
+
+	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
 
 	RootComponent = Capsule;
 	SpringArm->SetupAttachment(Capsule);
@@ -40,6 +46,12 @@ void APlayerRobot::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AbilitySystem->InitAbilityActorInfo(this, this);
+	if (IsValid(AbilitySystem))
+	{
+		AttributeSet = AbilitySystem->GetSet<URobotAttributeSet>();
+	}
+	
 
 }
 

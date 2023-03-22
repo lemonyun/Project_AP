@@ -51,7 +51,8 @@ private:
 
 	void UltimateCheckTimer();
 
-	//friend class FAsyncLaunchTask;
+	FVector ConvertVector(FVector Input);
+	
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -66,7 +67,7 @@ private:
 	float UltimateProjectileSpeed = 1500.f;
 
 	UPROPERTY(EditAnywhere)
-	float AttackProjectileSpeed = 1000.f;
+	float AutoProjectileSpeed = 1000.f;
 
 	UPROPERTY(EditAnywhere)
 	float LaunchDegree = 60.f;
@@ -102,6 +103,12 @@ private:
 
 	FVector PlayerInputVector;
 
+	FVector LastInputVector;
+	
+	class USpringArmComponent* SpringArm;
+
+	FVector AutoInputVector;
+	FVector UltimateInputVector;
 	
 };
 

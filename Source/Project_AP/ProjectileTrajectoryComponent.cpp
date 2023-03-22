@@ -71,10 +71,10 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 
 	FVector PlayerInputVector = Weapon->GetPlayerInputVector();
 
-	Params.LaunchVelocity = InputPower * ProjectileSpeed * (PlayerInputVector + FVector(0, 0, Angle / 90.f));
+	Params.LaunchVelocity = InputPower * ProjectileSpeed * (PlayerInputVector.GetSafeNormal() + FVector(0, 0, Angle / 90.f));
 	Params.StartLocation = ProjectileStartPoint->GetComponentLocation() + PlayerInputVector.GetSafeNormal() * Weapon->LaunchOffset;
 	
-	Params.ProjectileRadius = 10;
+	Params.ProjectileRadius = 0;
 	Params.TraceChannel = ECC_WorldStatic;
 	Params.bTraceWithCollision = true;
 	Params.bTraceComplex = false;

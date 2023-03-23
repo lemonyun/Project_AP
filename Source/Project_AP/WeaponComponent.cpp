@@ -39,7 +39,7 @@ void UWeaponComponent::BeginPlay()
 
 	
 
-	APlayerRobot* Owner = Cast<APlayerRobot>(GetOwner());
+	Owner = Cast<APlayerRobot>(GetOwner());
 	if (Owner != nullptr)
 	{
 		WeaponMesh = Owner->GetWeaponMeshComponent();
@@ -86,11 +86,14 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	ProjectileTrajectory->ClearTrajectory();
 
+	// WeaponMesh 회전 업데이트
 	if (PlayerInputVector.Size() > KINDA_SMALL_NUMBER && !bIsAttacking) // 
 	{
 		WeaponRotationVector = PlayerInputVector;
 		UpdateWeaponRotation(DeltaTime);
 	}
+
+	// 공격 중인 경우에는 WeaponMesh의 회전을 유지
 	if (bIsAttacking)
 	{
 		WeaponRotationVector = LastInputVector;
@@ -126,8 +129,12 @@ void UWeaponComponent::OnAutoTouchEnd()
 	// Touch를 뗀 지점이 MinInputRate 바깥쪽인 경우 발사
 	if (InputVector.Size() > MinInputRate)
 	{
+		
+		
 		// Launch
-		LaunchCurve();
+		// LaunchCurve();
+		
+		Owner->ActivateAbility(0);
 	}
 	else
 	{
@@ -158,7 +165,9 @@ void UWeaponComponent::OnUltimateTouchEnd()
 
 		});*/
 
+		// 
 
+		Owner->ActivateAbility(1);
 	
 		if (!GetOwner()->GetWorldTimerManager().IsTimerActive(UltimateHandle))
 		{
@@ -197,7 +206,7 @@ void UWeaponComponent::LaunchCurve()
 			FTransform ProjectileTransform = FTransform(SpawnRotation.Quaternion(), SpawnLocation);
 
 			Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), Cast<APawn>(GetOwner()), ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding);
-
+		
 			// 0 < InputPower < 1
 
 			if (Projectile != nullptr)

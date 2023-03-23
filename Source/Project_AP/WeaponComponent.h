@@ -20,18 +20,7 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
-	void SetAutoForward(float Value) { AttackForward = Value; }
-	void SetAutoRight(float Value) { AttackRight = Value; }
-
-	float GetAutoForward() { return AttackForward; }
-	float GetAutoRight() { return AttackRight; }
-
-	void SetUltimateForward(float Value) { UltimateForward = Value; }
-	void SetUltimateRight(float Value) { UltimateRight = Value; }
-
-	float GetUltimateForward() { return UltimateForward; }
-	float GetUltimateRight() { return UltimateRight; }
-
+	UFUNCTION(BlueprintPure)
 	FVector GetPlayerInputVector() { return PlayerInputVector; }
 
 protected:
@@ -110,6 +99,8 @@ private:
 	FVector AutoInputVector;
 	FVector UltimateInputVector;
 	
+	class APlayerRobot* Owner;
+
 };
 
 //class FAsyncLaunchTask : public FNonAbandonableTask

@@ -42,6 +42,35 @@ APlayerRobot::APlayerRobot()
 
 
 
+void APlayerRobot::GrantAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputCode)
+{
+	
+	if (GetLocalRole() == ROLE_Authority && IsValid(AbilitySystem) && IsValid(AbilityClass))
+	{
+		UGameplayAbility* Ability = AbilityClass->GetDefaultObject<UGameplayAbility>();
+		if (IsValid(Ability))
+		{
+			// create the new ability spec struct. Ability specs contain metadata about the ability, like what level they're set to, as well as a reference to the ability.
+			FGameplayAbilitySpec AbilitySpec(
+				Ability,
+				Level,
+				InputCode
+			);
+
+			AbilitySystem->GiveAbility(AbilitySpec);
+		}
+	}
+	
+}
+
+void APlayerRobot::ActivateAbility(int32 InputCode)
+{
+	if (IsValid(AbilitySystem))
+	{
+		AbilitySystem->AbilityLocalInputPressed(InputCode);
+	}
+}
+
 void APlayerRobot::BeginPlay()
 {
 	Super::BeginPlay();
@@ -52,6 +81,8 @@ void APlayerRobot::BeginPlay()
 		AttributeSet = AbilitySystem->GetSet<URobotAttributeSet>();
 	}
 	
+	// ¾îºô¸®Æ¼ Grant
+	InitializeAbilities();
 
 }
 
@@ -77,12 +108,13 @@ void APlayerRobot::MoveRight(float Value)
 	MovementComponent->SetMoveRight(Value);
 }
 
-//void APlayerRobot::Move(FVector Value)
-//{
-//	MovementComponent->SetMoveForward(Value.X);
-//	MovementComponent->SetMoveRight(Value.Y);
-//}
-
+void APlayerRobot::InitializeAbilities()
+{
+	for (int i = 0; i < AbilityList.Num(); i++)
+	{
+		GrantAbility(AbilityList[i], 1, i);
+	}
+}
 
 
 

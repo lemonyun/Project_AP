@@ -87,7 +87,7 @@ void UProjectileTrajectoryComponent::DrawTrajectory(float InputPower, float Proj
 	TArray<AActor*> ActorsToIgnore = {GetOwner()};
 	Params.ActorsToIgnore = ActorsToIgnore;
 	Params.DrawDebugType = EDrawDebugTrace::None;
-	Params.SimFrequency = 10.f;
+	Params.SimFrequency = 15.f;
 	Params.MaxSimTime = Time;
 
 	FPredictProjectilePathResult Results;

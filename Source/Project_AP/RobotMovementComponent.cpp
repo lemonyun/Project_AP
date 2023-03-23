@@ -8,6 +8,7 @@
 #include "Project_APGameInstance.h"
 #include "InGameWidget.h"
 #include "InGameButton.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values for this component's properties
 URobotMovementComponent::URobotMovementComponent()
@@ -31,10 +32,12 @@ void URobotMovementComponent::BeginPlay()
 	if (Owner != nullptr)
 	{
 		Mesh = Owner->GetMeshComponent();
+		SpringArm = Owner->GetSpringArmComponent();
 	}
 	
 
 	MoveButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetMoveButton();
+	RotateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetRotateButton();
 
 }
 
@@ -45,6 +48,8 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+
+	// Player Move 입력값
 	FVector2D PlayerMoveInput = MoveButton->GetPlayerInput();
 
 	// Movement는 Input의 크기에 상관 없이 같은 크기를 가진다.
@@ -54,6 +59,11 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	MoveRight = NormalizedInput.X;
 
 	FVector NewMoveVector = FVector(MoveForward, MoveRight, 0);
+	
+	FRotator SpringArmRotator = SpringArm->GetRelativeRotation();
+	SpringArmRotator.Pitch = 0;
+
+	NewMoveVector = SpringArmRotator.Quaternion().RotateVector(NewMoveVector);
 
 	Velocity = NewMoveVector * MoveSpeed;
 	
@@ -63,7 +73,16 @@ void URobotMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	{
 		UpdateRotation(DeltaTime);
 	}
+
+	// Camera Arm 회전
+	FVector2D CameraRotationInput = RotateButton->GetPlayerInput();
 	
+	CameraVelocity = CameraRotationInput.GetSafeNormal().X;
+
+	if (FMath::Abs(CameraVelocity) > KINDA_SMALL_NUMBER)
+	{
+		UpdateCameraRotation(DeltaTime);
+	}
 }
 
 void URobotMovementComponent::SetMoveForward(float Value)
@@ -99,6 +118,16 @@ void URobotMovementComponent::UpdateRotation(float DeltaTime)
 	// FRotator SmoothRotator = TargetRotator;
 
 	Mesh->SetRelativeRotation(SmoothRotator);
+	
+}
+
+void URobotMovementComponent::UpdateCameraRotation(float DeltaTime)
+{
+	FRotator CurrentRotator = SpringArm->GetComponentRotation();
+
+	FRotator NewRotator = CurrentRotator.Add(0 , CameraVelocity * 60.f * DeltaTime, 0);
+
+	SpringArm->SetRelativeRotation(NewRotator);
 	
 }
 

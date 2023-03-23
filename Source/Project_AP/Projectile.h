@@ -15,9 +15,14 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
+	UFUNCTION(BlueprintCallable)
 	void SetInitialSpeed(float Speed);
 
+	UFUNCTION(BlueprintPure)
 	class UProjectileMovementComponent* GetProjectileMovement() { return ProjectileMovement; }
+
+	/*UPROPERTY(BlueprintReadWrite, Meta = (ExposeOnSpawn = true))
+	float InitialSpeed;*/
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,7 +30,7 @@ protected:
 
 private:
 
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -33,7 +38,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* StaticMesh;
-
 
 public:	
 	// Called every frame

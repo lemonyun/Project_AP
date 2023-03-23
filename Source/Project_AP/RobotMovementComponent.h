@@ -29,6 +29,7 @@ protected:
 private:
 	void UpdateLocationFromVelocity(float DeltaTime);
 	void UpdateRotation(float DeltaTime);
+	void UpdateCameraRotation(float DeltaTime);
 		
 private:
 	class UStaticMeshComponent* Mesh;
@@ -37,12 +38,15 @@ private:
 	float MoveRight;
 
 	FVector Velocity;
-
+	float CameraVelocity;
+	FRotator CamRotate;
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 5.f;
 
 	class UInGameButton* MoveButton;
+	class UInGameButton* RotateButton;
+	class USpringArmComponent* SpringArm;
 
 
 };

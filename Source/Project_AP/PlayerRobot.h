@@ -4,13 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "BasePawn.h"
+#include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbility.h"
+
 #include "PlayerRobot.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_AP_API APlayerRobot : public ABasePawn
+class PROJECT_AP_API APlayerRobot : public ABasePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -27,8 +30,22 @@ public:
 	class UWeaponComponent* GetWeaponComponent() { return WeaponComponent; }
 	class UStaticMeshComponent* GetMeshComponent() { return BaseMesh; }
 	class UStaticMeshComponent* GetWeaponMeshComponent() { return WeaponMesh; }
-	class USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
 
+	UFUNCTION(BlueprintPure)
+	class USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
+	class USpringArmComponent* GetSpringArmComponent() { return SpringArm; }
+
+	/** Grants an ability at the given level, with an input code used to pick and choose which ability should be triggered. */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	void GrantAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputCode);
+
+	/** Activates an ability with a matching input code */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	void ActivateAbility(int32 InputCode);
+
+	///** Cancels abilities with specific Gameplay Tags applied to them.*/
+	//UFUNCTION(BlueprintCallable, Category = "Abilities")
+	//void CancelAbilityWithTags(const FGameplayTagContainer CancelWithTags);
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,6 +56,8 @@ protected:
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	void InitializeAbilities();
 	// void Move(FVector Value);
 
 private:
@@ -62,4 +81,21 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* ProjectileStartPoint;
+
+	UPROPERTY(EditAnywhere)
+	class UAbilitySystemComponent* AbilitySystem;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
+	{
+		return AbilitySystem;
+	}
+
+	UPROPERTY()
+	const class URobotAttributeSet* AttributeSet;
+
+	// 블루프린트에서 어빌리티 Add 해줘야 함
+	UPROPERTY(EditAnywhere, Category = "Ability")
+	TArray<TSubclassOf<UGameplayAbility>> AbilityList;
+
+
 };

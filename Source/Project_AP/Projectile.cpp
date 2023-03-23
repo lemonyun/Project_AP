@@ -17,19 +17,15 @@ AProjectile::AProjectile()
 	Sphere->CanCharacterStepUpOn = ECB_No;
 	Sphere->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
-	// Die after 3 seconds by default
-	InitialLifeSpan = 3.0f;
-
+	InitialLifeSpan = 2.0f;
 	RootComponent = Sphere;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMesh->SetupAttachment(Sphere);
 
-	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = Sphere;
-	ProjectileMovement->InitialSpeed = 1000.f;
-	ProjectileMovement->MaxSpeed = 1000.f;
+	
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
@@ -38,8 +34,7 @@ AProjectile::AProjectile()
 
 void AProjectile::SetInitialSpeed(float Speed)
 {
-	// 이유는 모르겠지만 Predict와 실제에서 Speed 차이가 나기 때문에
-	Speed = Speed * 1.2f;
+
 	ProjectileMovement->InitialSpeed = Speed;
 	ProjectileMovement->MaxSpeed = Speed;
 }

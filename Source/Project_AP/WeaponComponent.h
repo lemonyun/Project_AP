@@ -20,18 +20,7 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
-	void SetAutoForward(float Value) { AttackForward = Value; }
-	void SetAutoRight(float Value) { AttackRight = Value; }
-
-	float GetAutoForward() { return AttackForward; }
-	float GetAutoRight() { return AttackRight; }
-
-	void SetUltimateForward(float Value) { UltimateForward = Value; }
-	void SetUltimateRight(float Value) { UltimateRight = Value; }
-
-	float GetUltimateForward() { return UltimateForward; }
-	float GetUltimateRight() { return UltimateRight; }
-
+	UFUNCTION(BlueprintPure)
 	FVector GetPlayerInputVector() { return PlayerInputVector; }
 
 protected:
@@ -51,7 +40,8 @@ private:
 
 	void UltimateCheckTimer();
 
-	//friend class FAsyncLaunchTask;
+	FVector ConvertVector(FVector Input);
+	
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -66,7 +56,7 @@ private:
 	float UltimateProjectileSpeed = 1500.f;
 
 	UPROPERTY(EditAnywhere)
-	float AttackProjectileSpeed = 1000.f;
+	float AutoProjectileSpeed = 1000.f;
 
 	UPROPERTY(EditAnywhere)
 	float LaunchDegree = 60.f;
@@ -102,7 +92,15 @@ private:
 
 	FVector PlayerInputVector;
 
+	FVector LastInputVector;
 	
+	class USpringArmComponent* SpringArm;
+
+	FVector AutoInputVector;
+	FVector UltimateInputVector;
+	
+	class APlayerRobot* Owner;
+
 };
 
 //class FAsyncLaunchTask : public FNonAbandonableTask

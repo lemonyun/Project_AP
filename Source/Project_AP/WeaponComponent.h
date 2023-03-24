@@ -5,11 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Async/AsyncWork.h"
-
 #include "WeaponComponent.generated.h"
-
-
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_AP_API UWeaponComponent : public UActorComponent
@@ -38,8 +34,6 @@ private:
 	void OnAutoTouchEnd();
 	void OnUltimateTouchEnd();
 
-	void UltimateCheckTimer();
-
 	FVector ConvertVector(FVector Input);
 	
 
@@ -62,33 +56,24 @@ private:
 	float LaunchDegree = 60.f;
 
 	class UStaticMeshComponent* WeaponMesh;
-
+	class USceneComponent* LocationComponent;
 	class UInGameWidget* InGameWidget;
 	class UInGameButton* AutoButton;
 	class UInGameButton* UltimateButton;
-
-	class USceneComponent* LocationComponent;
+	class UProjectileTrajectoryComponent* ProjectileTrajectory;
+	class USpringArmComponent* SpringArm;
+	class APlayerRobot* Owner;
 
 	bool bIsAttacking;
 
 	FVector WeaponRotationVector;
 
-	class UProjectileTrajectoryComponent* ProjectileTrajectory;
-	
-	class USpringArmComponent* SpringArm;
-	class APlayerRobot* Owner;
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
-
-	FTimerHandle UltimateHandle;
-	float RepeatTime = 5;
 
 	FVector PlayerInputVector;
 	FVector LastInputVector;
 	
-
-
 	FVector AutoInputVector;
 	FVector UltimateInputVector;
 	

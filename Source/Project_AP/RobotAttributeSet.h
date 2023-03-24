@@ -46,6 +46,8 @@ protected:
 public:
 	// 게임플레이 이펙트의 결과
 	void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	// void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(Health);
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(Health);
@@ -91,5 +93,6 @@ public:
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(UltimateManaMax);
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(UltimateManaMax);
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(URobotAttributeSet, UltimateManaMax);
+
 
 };

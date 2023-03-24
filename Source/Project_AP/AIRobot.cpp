@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerRobot.h"
+#include "AIRobot.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -10,46 +11,34 @@
 #include "WeaponComponent.h"
 #include "ProjectileTrajectoryComponent.h"
 #include "Components/SceneComponent.h"
-#include "Project_APGameInstance.h"
-#include "PlayerHUD.h"
 
 #include "AbilitySystemComponent.h"
 #include "RobotAttributeSet.h"
 
 
 
-APlayerRobot::APlayerRobot()
+AAIRobot::AAIRobot()
 {
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
-	MovementComponent = CreateDefaultSubobject<URobotMovementComponent>(TEXT("MovementComponent"));
-	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
 	ProjectileStartPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileStartPoint"));
-	ProjectileTrajectory = CreateDefaultSubobject<UProjectileTrajectoryComponent>(TEXT("ProjectileTrajectory"));
+	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
 
-	
 	RootComponent = Capsule;
-	SpringArm->SetupAttachment(Capsule);
-	Camera->SetupAttachment(SpringArm);
 	BaseMesh->SetupAttachment(Capsule);
 	WeaponMesh->SetupAttachment(BaseMesh);
 	ProjectileStartPoint->SetupAttachment(WeaponMesh);
-
-
-	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
-
 
 }
 
 
 
 
-void APlayerRobot::GrantAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputCode)
+void AAIRobot::GrantAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputCode)
 {
-	
+
 	if (GetLocalRole() == ROLE_Authority && IsValid(AbilitySystem) && IsValid(AbilityClass))
 	{
 		UGameplayAbility* Ability = AbilityClass->GetDefaultObject<UGameplayAbility>();
@@ -65,10 +54,10 @@ void APlayerRobot::GrantAbility(TSubclassOf<UGameplayAbility> AbilityClass, int3
 			AbilitySystem->GiveAbility(AbilitySpec);
 		}
 	}
-	
+
 }
 
-void APlayerRobot::ActivateAbility(int32 InputCode)
+void AAIRobot::ActivateAbility(int32 InputCode)
 {
 	if (IsValid(AbilitySystem))
 	{
@@ -76,7 +65,7 @@ void APlayerRobot::ActivateAbility(int32 InputCode)
 	}
 }
 
-void APlayerRobot::BeginPlay()
+void AAIRobot::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -85,14 +74,13 @@ void APlayerRobot::BeginPlay()
 	{
 		AttributeSet = AbilitySystem->GetSet<URobotAttributeSet>();
 	}
-	
+
 	// ¾îºô¸®Æ¼ Grant
 	InitializeAbilities();
 
-	InitializeHUD();
 }
 
-void APlayerRobot::InitializeAbilities()
+void AAIRobot::InitializeAbilities()
 {
 	for (int i = 0; i < AbilityList.Num(); i++)
 	{
@@ -100,13 +88,5 @@ void APlayerRobot::InitializeAbilities()
 	}
 }
 
-void APlayerRobot::InitializeHUD()
-{
-	UPlayerHUD* HUD = Cast<UProject_APGameInstance>(GetWorld()->GetGameInstance())->GetInGameWidget()->GetPlayerHUD();
 
-	
-	HUD->UltimateSetPercent(AttributeSet->GetUltimateMana() / AttributeSet->GetUltimateManaMax());
-	HUD->AutoSetPercent(AttributeSet->GetAutoMana() / AttributeSet->GetAutoManaMax());
-	HUD->HealthSetPercent(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
-}
 

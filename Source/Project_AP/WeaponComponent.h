@@ -5,11 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Async/AsyncWork.h"
-
 #include "WeaponComponent.generated.h"
-
-
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_AP_API UWeaponComponent : public UActorComponent
@@ -23,6 +19,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FVector GetPlayerInputVector() { return PlayerInputVector; }
 
+	UFUNCTION(BlueprintCallable)
+	void SetIsAttacking(bool Attacking) { bIsAttacking = Attacking; }
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -34,11 +33,6 @@ private:
 
 	void OnAutoTouchEnd();
 	void OnUltimateTouchEnd();
-
-	void LaunchCurve();
-	void LaunchStraight();
-
-	void UltimateCheckTimer();
 
 	FVector ConvertVector(FVector Input);
 	
@@ -62,64 +56,27 @@ private:
 	float LaunchDegree = 60.f;
 
 	class UStaticMeshComponent* WeaponMesh;
-
+	class USceneComponent* LocationComponent;
 	class UInGameWidget* InGameWidget;
 	class UInGameButton* AutoButton;
 	class UInGameButton* UltimateButton;
+	class UProjectileTrajectoryComponent* ProjectileTrajectory;
+	class USpringArmComponent* SpringArm;
+	class APlayerRobot* Owner;
 
-	class USceneComponent* LocationComponent;
-
-	float AttackForward;
-	float AttackRight;
-
-	float UltimateForward;
-	float UltimateRight;
-	
 	bool bIsAttacking;
 
 	FVector WeaponRotationVector;
 
-	class UProjectileTrajectoryComponent* ProjectileTrajectory;
-	
-	UPROPERTY()
-	class AProjectile* Projectile;
-	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
-	FTimerHandle UltimateHandle;
-	float RepeatTime = 5;
-
 	FVector PlayerInputVector;
-
 	FVector LastInputVector;
 	
-	class USpringArmComponent* SpringArm;
-
 	FVector AutoInputVector;
 	FVector UltimateInputVector;
 	
-	class APlayerRobot* Owner;
+	
 
 };
-
-//class FAsyncLaunchTask : public FNonAbandonableTask
-//{
-//
-//public:
-//
-//	FAsyncLaunchTask(int32 LaunchCount, UWeaponComponent* Weapon);
-//
-//	FORCEINLINE TStatId GetStatId() const
-//	{
-//		RETURN_QUICK_DECLARE_CYCLE_STAT (FAsyncLaunchTask, STATGROUP_ThreadPoolAsyncTasks);
-//	}
-//
-//	void DoWork();
-//
-//private:
-//	int LaunchCount;
-//
-//	TObjectPtr<UWeaponComponent> WeaponPtr;
-//
-//};

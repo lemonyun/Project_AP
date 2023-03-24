@@ -38,7 +38,6 @@ void URobotMovementComponent::BeginPlay()
 
 	MoveButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetMoveButton();
 	RotateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetRotateButton();
-
 }
 
 

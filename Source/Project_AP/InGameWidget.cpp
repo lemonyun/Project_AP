@@ -17,9 +17,16 @@ bool UInGameWidget::Initialize()
     if (AutoButton == nullptr) return false;
 
     if (UltimateButton == nullptr) return false;
+
+    if (RotateButton == nullptr) return false;
+    
+    if (PlayerHUD == nullptr) return false;
   
     AutoButton->AddButtonToInActiveList(UltimateButton);
     UltimateButton->AddButtonToInActiveList(AutoButton);
+    
+    RotateButton->AddButtonToInActiveList(MoveButton);
+    MoveButton->AddButtonToInActiveList(RotateButton);
 
     return true;
     

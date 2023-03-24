@@ -19,13 +19,14 @@ public:
 	class UInGameButton* GetAutoButton() { return AutoButton; }
 	class UInGameButton* GetUltimateButton() { return UltimateButton; }
 	class UInGameButton* GetRotateButton() { return RotateButton; }
+	class UPlayerHUD* GetPlayerHUD() { return PlayerHUD; }
 
 protected:
 	virtual bool Initialize() override;
 
 private:
-	void ChangeWidgetSize();
-	void RestoreWidgetSize();
+	//void ChangeWidgetSize();
+	//void RestoreWidgetSize();
 
 	UPROPERTY(meta = (BindWidget))
 	class UInGameButton* MoveButton;
@@ -38,5 +39,10 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UInGameButton* RotateButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UPlayerHUD* PlayerHUD;
+
+	
 
 };

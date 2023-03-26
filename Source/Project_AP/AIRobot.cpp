@@ -36,7 +36,7 @@ AAIRobot::AAIRobot()
 	UIFloatingBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingBarComponent"));
 	UIFloatingBarComponent->SetupAttachment(RootComponent);
 	// UIFloatingBarComponent->SetRelativeLocation(FVector(0, 0, 120));
-	UIFloatingBarComponent->SetWidgetSpace(EWidgetSpace::World);
+	UIFloatingBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	UIFloatingBarComponent->SetDrawSize(FVector2D(500, 500));
 	// UIFloatingBarComponent->Set
 }
@@ -71,6 +71,11 @@ void AAIRobot::ActivateAbility(int32 InputCode)
 	{
 		AbilitySystem->AbilityLocalInputPressed(InputCode);
 	}
+}
+
+bool AAIRobot::IsDead()
+{
+	return AttributeSet->GetHealth() <= 0;
 }
 
 void AAIRobot::BeginPlay()

@@ -11,6 +11,7 @@
 #include "RobotAIController.h"
 #include "PlayerRobot.h"
 #include "FloatingWidget.h"
+#include "AnnihilationGameMode.h"
 
 void URobotAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -37,6 +38,7 @@ void URobotAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+
 		if (PlayerHUD != nullptr)
 		{
 			PlayerHUD->HealthSetPercent(GetHealth() / GetMaxHealth());
@@ -45,6 +47,19 @@ void URobotAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		if (AIHUD != nullptr)
 		{
 			AIHUD->HealthSetPercent(GetHealth() / GetMaxHealth());
+		}
+
+		if (GetHealth() <= 0)
+		{
+			AAnnihilationGameMode* GameMode = GetWorld()->GetAuthGameMode<AAnnihilationGameMode>();
+			APawn* Pawn = Cast<APawn>(GetOwningActor());
+			if (GameMode != nullptr)
+			{
+				GameMode->PawnKilled(Pawn);
+			}
+
+			// Pawn->DetachFromControllerPendingDestroy();
+			Pawn->Destroy();
 		}
 		
 	}

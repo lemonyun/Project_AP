@@ -26,9 +26,22 @@ public:
 
 	UInGameWidget* GetInGameWidget() { return InGameWidget; }
 
+	void GameHasEnded(class AActor* EndGameFocus, bool bIsWinner);
+
 private:
 
 	TSubclassOf<UInGameWidget> WidgetClass;
 	class UInGameWidget* InGameWidget;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> WinScreenClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> LoseScreenClass;
+
+	UPROPERTY(EditAnywhere)
+	float RestartDelay = 5;
+
+	FTimerHandle RestartTimer;
 
 };

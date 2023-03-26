@@ -14,4 +14,6 @@ class PROJECT_AP_API ARobotAIController : public AAIController
 {
 	GENERATED_BODY()
 	
+public:
+	bool IsDead() const;
 };

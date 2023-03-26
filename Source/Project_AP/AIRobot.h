@@ -43,6 +43,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UWidgetComponent* UIFloatingBarComponent;
 
+	bool IsDead();
+
 protected:
 	virtual void BeginPlay() override;
 

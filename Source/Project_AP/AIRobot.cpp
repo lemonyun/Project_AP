@@ -16,12 +16,14 @@
 #include "RobotPlayerController.h"
 #include "RobotAttributeSet.h"
 #include "FloatingWidget.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
 
 
 AAIRobot::AAIRobot()
 {
-	
+	PrimaryActorTick.bCanEverTick = true;
+
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
@@ -38,7 +40,10 @@ AAIRobot::AAIRobot()
 	// UIFloatingBarComponent->SetRelativeLocation(FVector(0, 0, 120));
 	UIFloatingBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	UIFloatingBarComponent->SetDrawSize(FVector2D(500, 500));
-	// UIFloatingBarComponent->Set
+	// UIFloatingBarComponent->Set													
+	
+	PawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>("PawnMovement");
+	PawnMovement->UpdatedComponent = RootComponent;
 }
 
 
@@ -92,6 +97,14 @@ void AAIRobot::BeginPlay()
 	// ¾îºô¸®Æ¼ Grant
 	InitializeAbilities();
 	InitializeFloatingBar();
+}
+
+void AAIRobot::Tick(float DeltaTime)
+{
+	if (GetVelocity().Size() > 0)
+	{
+		BaseMesh->SetWorldRotation(GetVelocity().Rotation());
+	}
 }
 
 void AAIRobot::InitializeAbilities()

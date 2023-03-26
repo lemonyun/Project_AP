@@ -21,6 +21,7 @@
 
 APlayerRobot::APlayerRobot()
 {
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");

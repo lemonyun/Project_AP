@@ -6,6 +6,7 @@
 #include "BasePawn.h"
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbility.h"
+#include "PlayerRobot.h"
 
 #include "AIRobot.generated.h"
 
@@ -21,7 +22,11 @@ public:
 	
 	AAIRobot();
 
+
+	UFUNCTION(BlueprintPure)
+	class USceneComponent* GetProjectileStartPoint() { return ProjectileStartPoint; }
 	class UStaticMeshComponent* GetMeshComponent() { return BaseMesh; }
+	UFUNCTION(BlueprintCallable)
 	class UStaticMeshComponent* GetWeaponMeshComponent() { return WeaponMesh; }
 
 	/** Grants an ability at the given level, with an input code used to pick and choose which ability should be triggered. */
@@ -45,8 +50,22 @@ public:
 
 	bool IsDead();
 
+	void SetPlayerRobot(APlayerRobot* Robot) { PlayerRobot = Robot; }
+
+	UFUNCTION(BlueprintCallable)
+	APlayerRobot* GetPlayerRobot() const { return PlayerRobot; }
+
+	UPROPERTY(BlueprintReadWrite)
+	APlayerRobot* PlayerRobot;
+
+	
+	UPROPERTY(EditAnywhere)
+	class UFloatingPawnMovement* PawnMovement;
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 private:
 	void InitializeAbilities();
@@ -78,5 +97,7 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>> AbilityList;
 
 	void InitializeFloatingBar();
+
+
 
 };

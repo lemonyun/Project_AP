@@ -12,19 +12,20 @@ AProjectile::AProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleComponent"));
 	Sphere->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	Sphere->CanCharacterStepUpOn = ECB_No;
-	Sphere->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
 	InitialLifeSpan = 2.0f;
 	RootComponent = Sphere;
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMesh->SetupAttachment(Sphere);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = Sphere;
+	ProjectileMovement->UpdatedComponent = RootComponent;
+	
 	
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;

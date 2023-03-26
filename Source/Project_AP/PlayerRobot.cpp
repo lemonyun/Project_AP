@@ -12,6 +12,7 @@
 #include "Components/SceneComponent.h"
 #include "Project_APGameInstance.h"
 #include "PlayerHUD.h"
+#include "RobotPlayerController.h"
 
 #include "AbilitySystemComponent.h"
 #include "RobotAttributeSet.h"
@@ -90,6 +91,10 @@ void APlayerRobot::BeginPlay()
 	InitializeAbilities();
 
 	InitializeHUD();
+
+	ActivateAbility(2);
+	ActivateAbility(3);
+
 }
 
 void APlayerRobot::InitializeAbilities()
@@ -102,7 +107,7 @@ void APlayerRobot::InitializeAbilities()
 
 void APlayerRobot::InitializeHUD()
 {
-	UPlayerHUD* HUD = Cast<UProject_APGameInstance>(GetWorld()->GetGameInstance())->GetInGameWidget()->GetPlayerHUD();
+	UPlayerHUD* HUD = Cast<ARobotPlayerController>(GetController())->GetInGameWidget()->GetPlayerHUD();
 
 	
 	HUD->UltimateSetPercent(AttributeSet->GetUltimateMana() / AttributeSet->GetUltimateManaMax());

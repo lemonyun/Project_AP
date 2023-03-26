@@ -32,12 +32,6 @@ protected:
 	FGameplayAttributeData UltimateMana;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FGameplayAttributeData AutoManaRegen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FGameplayAttributeData UltimateManaRegen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayAttributeData AutoManaMax;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -74,16 +68,6 @@ public:
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(UltimateMana);
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(URobotAttributeSet, UltimateMana);
 
-	GAMEPLAYATTRIBUTE_VALUE_GETTER(AutoManaRegen);
-	GAMEPLAYATTRIBUTE_VALUE_SETTER(AutoManaRegen);
-	GAMEPLAYATTRIBUTE_VALUE_INITTER(AutoManaRegen);
-	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(URobotAttributeSet, AutoManaRegen);
-
-	GAMEPLAYATTRIBUTE_VALUE_GETTER(UltimateManaRegen);
-	GAMEPLAYATTRIBUTE_VALUE_SETTER(UltimateManaRegen);
-	GAMEPLAYATTRIBUTE_VALUE_INITTER(UltimateManaRegen);
-	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(URobotAttributeSet, UltimateManaRegen);
-
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(AutoManaMax);
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(AutoManaMax);
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(AutoManaMax);
@@ -93,6 +77,5 @@ public:
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(UltimateManaMax);
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(UltimateManaMax);
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(URobotAttributeSet, UltimateManaMax);
-
 
 };

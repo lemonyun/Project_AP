@@ -11,10 +11,12 @@
 #include "WeaponComponent.h"
 #include "ProjectileTrajectoryComponent.h"
 #include "Components/SceneComponent.h"
-
+#include "Components/WidgetComponent.h"
 #include "AbilitySystemComponent.h"
+#include "RobotPlayerController.h"
 #include "RobotAttributeSet.h"
-
+#include "FloatingWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AAIRobot::AAIRobot()
@@ -31,6 +33,12 @@ AAIRobot::AAIRobot()
 	WeaponMesh->SetupAttachment(BaseMesh);
 	ProjectileStartPoint->SetupAttachment(WeaponMesh);
 
+	UIFloatingBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingBarComponent"));
+	UIFloatingBarComponent->SetupAttachment(RootComponent);
+	// UIFloatingBarComponent->SetRelativeLocation(FVector(0, 0, 120));
+	UIFloatingBarComponent->SetWidgetSpace(EWidgetSpace::World);
+	UIFloatingBarComponent->SetDrawSize(FVector2D(500, 500));
+	// UIFloatingBarComponent->Set
 }
 
 
@@ -75,9 +83,10 @@ void AAIRobot::BeginPlay()
 		AttributeSet = AbilitySystem->GetSet<URobotAttributeSet>();
 	}
 
+
 	// ¾îºô¸®Æ¼ Grant
 	InitializeAbilities();
-
+	InitializeFloatingBar();
 }
 
 void AAIRobot::InitializeAbilities()
@@ -88,5 +97,30 @@ void AAIRobot::InitializeAbilities()
 	}
 }
 
+void AAIRobot::InitializeFloatingBar()
+{
+	if (UIFloatingBarClass)
+	{
+		ARobotPlayerController* PC = Cast<ARobotPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (PC && PC->IsLocalPlayerController())
+		{
+			UIFloatingBar = CreateWidget<UFloatingWidget>(PC, UIFloatingBarClass);
+			if (UIFloatingBar && UIFloatingBarComponent)
+			{
+				
+				UIFloatingBarComponent->SetWidget(UIFloatingBar);
+	
+				UIFloatingBar->HealthSetPercent(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
+			
+			}
+		}
+	}
+}
 
 
+
+
+UFloatingWidget* AAIRobot::GetFloatingBarWidget()
+{
+	return UIFloatingBar;
+}

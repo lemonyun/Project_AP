@@ -8,6 +8,7 @@
 #include "Project_APGameInstance.h"
 #include "InGameWidget.h"
 #include "InGameButton.h"
+#include "RobotPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values for this component's properties
@@ -36,8 +37,8 @@ void URobotMovementComponent::BeginPlay()
 	}
 	
 
-	MoveButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetMoveButton();
-	RotateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetRotateButton();
+	MoveButton = Cast<ARobotPlayerController>(Cast<APlayerRobot>(GetOwner())->GetController())->GetInGameWidget()->GetMoveButton();
+	RotateButton = Cast<ARobotPlayerController>(Cast<APlayerRobot>(GetOwner())->GetController())->GetInGameWidget()->GetRotateButton();
 }
 
 

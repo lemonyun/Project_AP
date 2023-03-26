@@ -33,14 +33,16 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* Sphere;
-	
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* StaticMesh;
+
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* Sphere;
+	
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* StaticMesh;
 
 };

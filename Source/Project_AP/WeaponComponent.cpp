@@ -12,6 +12,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
+#include "RobotPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values for this component's properties
@@ -30,8 +31,8 @@ void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AutoButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetAutoButton();
-	UltimateButton = Cast<UProject_APGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetInGameWidget()->GetUltimateButton();
+	AutoButton = Cast<ARobotPlayerController>(Cast<APlayerRobot>(GetOwner())->GetController())->GetInGameWidget()->GetAutoButton();
+	UltimateButton = Cast<ARobotPlayerController>(Cast<APlayerRobot>(GetOwner())->GetController())->GetInGameWidget()->GetUltimateButton();
 
 	
 

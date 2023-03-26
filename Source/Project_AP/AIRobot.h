@@ -32,6 +32,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	void ActivateAbility(int32 InputCode);
 
+	class UFloatingWidget* GetFloatingBarWidget();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<class UFloatingWidget> UIFloatingBarClass;
+
+	UPROPERTY()
+	class UFloatingWidget* UIFloatingBar;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UWidgetComponent* UIFloatingBarComponent;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -63,4 +74,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Ability")
 	TArray<TSubclassOf<UGameplayAbility>> AbilityList;
+
+	void InitializeFloatingBar();
+
 };

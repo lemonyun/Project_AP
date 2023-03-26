@@ -125,7 +125,7 @@ void URobotMovementComponent::UpdateCameraRotation(float DeltaTime)
 {
 	FRotator CurrentRotator = SpringArm->GetComponentRotation();
 
-	FRotator NewRotator = CurrentRotator.Add(0 , CameraVelocity * 60.f * DeltaTime, 0);
+	FRotator NewRotator = CurrentRotator.Add(0 , CameraVelocity * 180.f * DeltaTime, 0);
 
 	SpringArm->SetRelativeRotation(NewRotator);
 	

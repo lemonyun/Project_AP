@@ -16,4 +16,11 @@ class PROJECT_AP_API ARobotAIController : public AAIController
 	
 public:
 	bool IsDead() const;
+
+protected:
+	void BeginPlay() override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	class UBehaviorTree* AIBehavior; 
 };

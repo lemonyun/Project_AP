@@ -2,6 +2,8 @@
 
 #include "AIRobot.h"
 #include "RobotAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 bool ARobotAIController::IsDead() const
 {
@@ -13,4 +15,16 @@ bool ARobotAIController::IsDead() const
     }
 
     return true;
+}
+
+void ARobotAIController::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (AIBehavior != nullptr)
+    {
+        RunBehaviorTree(AIBehavior);
+
+        GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), GetPawn()->GetActorLocation());
+    }
 }
